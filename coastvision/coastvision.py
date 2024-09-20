@@ -922,6 +922,7 @@ def add_all_contours_to_one_site_geojson(reg, sites = None, qaqc=False):  ## ABM
 
 #### Transects ####
 import geopandas as gpd
+from shapely.geometry import LineString, MultiLineString
 def transects_from_geojson(filename):
     """
     Reads transect coordinates from a .geojson file.
@@ -937,16 +938,28 @@ def transects_from_geojson(filename):
         contains the X and Y coordinates of each transect
         
     Source:
-        https://github.com/kvos/CoastSat
+        addapted from https://github.com/kvos/CoastSat
         
     """  
     
     gdf = gpd.read_file(filename)
     transects = dict([])
+    # for i in gdf.index:
+    #     transects[gdf.loc[i,'name']] = np.array(gdf.loc[i,'geometry'].coords)
     for i in gdf.index:
-        transects[gdf.loc[i,'name']] = np.array(gdf.loc[i,'geometry'].coords)
-        
-    print('%d transects have been loaded' % len(transects.keys()))
+        geom = gdf.loc[i, 'geometry']
+        if isinstance(geom, LineString):
+            transects[gdf.loc[i, 'name']] = np.array(geom.coords)
+        elif isinstance(geom, MultiLineString):
+            # Ensure the MultiLineString has exactly one LineString with two coordinates
+            if len(geom.geoms) == 1 and len(geom.geoms[0].coords) == 2:
+                transects[gdf.loc[i, 'id']] = np.array(geom.geoms[0].coords)
+            else:
+                raise ValueError(f"MultiLineString at index {i} does not have exactly one LineString with two coordinates.")
+        else:
+            raise TypeError(f"Unsupported geometry type at index {i}: {type(geom)}")
+
+    # print('%d transects have been loaded' % len(transects.keys()))
 
     return transects
 
@@ -1251,6 +1264,7 @@ def run_coastvision_single(region, sitename, itemID, siteInputs=None, justShorel
 
     if not metadataJson is None:
         try:
+            print(metadataJson)
             with open(metadataJson, 'r') as f:
                 data = json.load(f)
             infoJson['pixel_size'] = data['properties']['pixel_resolution']

@@ -6,6 +6,7 @@ Author: Joel Nicolow, Climate Resiliance Initiative, School of Ocean and Earth S
 import os
 import pandas as pd
 import numpy as np
+from glob import glob
 
 from coastvision import coastvision
 from coastvision import supportingFunctions
@@ -68,7 +69,9 @@ class CoastVisionRun(object):
     def run_shoreline_extraction(self):
         self.intersection_dict = {}
         n=0
-        ref_tif = os.path.join(os.getcwd(), 'user_inputs', self.region, self.sitename, f'{self.sitename}_reference.tif')
+        tifs = glob(os.path.join('data', self.region, self.sitename, '*_3B_AnalyticMS_toar_clip.tif'))
+        if len(tifs) < 1: raise ValueError(f"There are no images for the site: {self.sitename}. Use PlanetScope API to download imagery")
+        ref_tif = tifs[0]
         im_ms = geospatialTools.get_im_ms(ref_tif)
         georef = geospatialTools.get_georef(ref_tif)
         self.site_inputs['shorelinebuff'] = coastvision.create_shoreline_buffer(self.region, self.sitename, im_shape=im_ms.shape[0:2], 
