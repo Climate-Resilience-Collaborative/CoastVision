@@ -52,7 +52,7 @@ def select_reference_im(region, site, ref_im_path = None):
     ref_im_path: str
         path to saved reference image
     """
-    datapath = os.path.join(os.getcwd(), 'data', region, site)
+    
     if ref_im_path == None:
         
         ## first search in user_inputs
@@ -63,13 +63,14 @@ def select_reference_im(region, site, ref_im_path = None):
             print(potential_ref[0])
             ref_im_path = potential_ref[0] # use that as reference
         else: # no files found, select a reference
-            ref_im = dataSelectionTools.select_tif_images(datapath, timeperiod=None, onlySelectOne=True)
-            ref_im_path = os.path.join(os.getcwd(), 'data', region, site, ref_im)
-            site_inputs_dir = os.path.join(os.getcwd(), 'user_inputs', region, site)
-            shutil.copy(ref_im_path, site_inputs_dir)
-            print('copied reference image')
-    else:
-        ref_im_path = ref_im_path
+            # ref_im = dataSelectionTools.select_tif_images(datapath, timeperiod=None, onlySelectOne=True)
+            # ref_im_path = os.path.join(os.getcwd(), 'data', region, site, ref_im)
+            # site_inputs_dir = os.path.join(os.getcwd(), 'user_inputs', region, site)
+            # shutil.copy(ref_im_path, site_inputs_dir)
+            # print('copied reference image')
+
+            ref_im_path = glob.glob(os.path.join(os.getcwd(), 'data', region, site, '*_3B_AnalyticMS_toar_clip.tif'))[0]
+
     return ref_im_path
 
 ## WATER MASK
@@ -381,8 +382,7 @@ def coreg_site(region, site, grid_res, start=0):
     ### Format image mask + ref image #####
     #######################################
     # get reference image and create mask for reference image
-    print('select reference image')
-    ref_im_path= select_reference_im(region, site, ref_im_path = None)
+    ref_im_path = select_reference_im(region, site, ref_im_path = None)
     # water mask; pixels to ignore during coregistration
     # print('calculating water mask')
     # water_mask = create_water_mask(region, site, ref_im_path, water_mask_path=None)
