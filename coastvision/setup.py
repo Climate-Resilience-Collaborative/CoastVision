@@ -13,6 +13,8 @@ def create_site_dict_json_for_API(site_name:str, aoi:list, start_date:str, end_d
 
     if not os.path.exists('sites'): os.mkdir('sites')
 
+    if aoi[0] != aoi[-1]: aoi.append(aoi[0].copy())  # PlanetScope API wants last coordinate to be copy of first coordinate
+
     site_dict = {f"{site_name}": {"item_type": "PSScene", "geometry_filter": {"type": "GeometryFilter", "field_name": "geometry", "config": {
         "type": "Polygon", 
         "coordinates": [aoi]}},
@@ -25,9 +27,11 @@ def create_site_dict_json_for_API(site_name:str, aoi:list, start_date:str, end_d
     return site_dict
 
 
-def write_api_key_file(api_key:str):
+def write_api_key_file(api_key:str, overwrite:bool=False):
     if not os.path.exists('sites'): os.mkdir('sites')
     
     file_path = os.path.join('sites', 'PlanetScope_API_key.txt')
-    with open(file_path, "w") as file:
-        file.write(api_key)
+    if overwrite or not os.path.exists(file_path):
+        # if we want to overwrite or if it doesnt exsist we will need to make it
+        with open(file_path, "w") as file:
+            file.write(api_key)

@@ -385,17 +385,18 @@ def coreg_site(region, site, grid_res, start=0):
     ref_im_path= select_reference_im(region, site, ref_im_path = None)
     # water mask; pixels to ignore during coregistration
     # print('calculating water mask')
-    water_mask = create_water_mask(region, site, ref_im_path, water_mask_path=None)
-    #process water mask to remove holes in land pixels
-    water_mask = morphology.binary_erosion(water_mask,  morphology.square(50)) # https://medium.com/swlh/image-processing-with-python-morphological-operations-26b7006c0359
-    water_mask = morphology.binary_dilation(water_mask, morphology.square(40))
+    # water_mask = create_water_mask(region, site, ref_im_path, water_mask_path=None)
+    # #process water mask to remove holes in land pixels
+    # water_mask = morphology.binary_erosion(water_mask,  morphology.square(50)) # https://medium.com/swlh/image-processing-with-python-morphological-operations-26b7006c0359
+    # water_mask = morphology.binary_dilation(water_mask, morphology.square(40))
 
     # load udm cloud mask based on ref image id
     im_ref_id = os.path.basename(ref_im_path)[0:20]
     im_ref_cloud_path = glob.glob(os.path.join(datapath, (im_ref_id+'*udm2_clip.tif')))[0] 
     im_ref_cloud_mask = geospatialTools.get_cloud_mask_from_udm2_band8(im_ref_cloud_path)
     # combine water and cloud mask, and save output
-    im_ref_mask = (water_mask + im_ref_cloud_mask) >0
+    # im_ref_mask = (water_mask + im_ref_cloud_mask) >0
+    im_ref_mask = im_ref_cloud_mask > 0 # dont use water mask for now
 
     # SAVE reference image mask ######
     im_ref_mask_path = os.path.join(temp_dir, 'im_ref_mask.tif')

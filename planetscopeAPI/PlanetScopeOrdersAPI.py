@@ -243,7 +243,6 @@ class PlanetScopeAPIOrder(object):
                 for i in range(len(products['products'])):
                     productsShell['products'] = products['products'][i]
                     productsPartial = productsShell  # no need to copy here because we are overwriting the products element in productShell each iteration
-
                     request_url = self.place_order(productsPartial)
                     retry_count = 0
                     while retry_count < max_retries:
@@ -263,7 +262,12 @@ class PlanetScopeAPIOrder(object):
                                 return str(e)
 
             else:
+                print(products)
                 request_url = self.place_order(products)
+                print(request_url)
+                if request_url is None: 
+                    print('The products for this time were empty so skipping')
+                    return None # this is just to skip the download portion
                 retry_count = 0
                 while retry_count < max_retries:
                     try:
@@ -448,9 +452,15 @@ class PlanetScopeAPIOrder(object):
         :param request: request dictionary made by self.build_clip_request_dict()
         :return: order url 
         """
-
-        # print(request) # this gets verly large
+        
+        for i in range(0, len(request['products'])):
+            if len(request['products'][i]['item_ids']) < 1:
+                del request['products'][i]  # remove empty item group
+        if len(request['products']) == 0:
+            return None # that means the products list was empty
+        print('is anything making it this far?')
         response = requests.post(self.ORDERS_URL, data=json.dumps(request), auth=self.AUTH, headers=self.HEADERS)
+        print(response)
         if self.PRINT_ALL:
             print(response)
         if not response.ok:
