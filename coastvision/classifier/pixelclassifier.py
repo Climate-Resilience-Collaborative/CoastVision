@@ -15,7 +15,7 @@ import numpy as np
 #### Feature engineering ####
 def ndi(b1, b2, twoD=False):
     """Calculate the Normalized Difference Index (NDI) for two bands."""
-    epsilon = 1e-6
+    epsilon = 1 # the values are ints so 1 is the smallest non-zero value
     denominator = b1 + b2
     denominator[np.isnan(denominator) | np.isinf(denominator) | denominator == 0] = epsilon
     if twoD:
