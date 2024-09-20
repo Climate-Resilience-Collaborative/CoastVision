@@ -32,6 +32,8 @@ conda env create -f coastvision.yml
 conda activate coastvision
 ```
 
+After successfully creating the environment run through `example_notebook.ipynb` using the `coastvision` environment. This notebook provides code and explination of the following steps. Given an area of interest and a timeframe of interest you can download imagery and extract shorelines from your own site from all from this notebook.
+
 ## 2. PlanetScope API<a name="api"></a>
 <a href='https://developers.planet.com/docs/data/planetscope/'>PlanetScope</a> is a satellite constilation opperated by <a href='https://www.planet.com/'>Planet Labs Inc.</a> The PlanetScope constellatuion is made up of roughtly 130 satellites, capable of imageing the entire land surface of earth with daily revisit times and 3 meter spatial resolition. The imagery has four bands red, green, blue, and near-infrared. 
 
