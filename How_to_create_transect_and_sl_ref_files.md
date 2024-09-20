@@ -7,27 +7,34 @@ First, Drag and drop a tiff file (downloaded by the API here: `data/<region>/<si
 
 Next, click the "create shapefile layer" botton shown below.
 
-<img src="media\01_select_create_layer.JPG" alt="create shapefile layer" style="max-width:70%">
+<img src="media\01_select_create_layer.JPG" alt="create shapefile layer" style="max-width:50%">
 
 Once clicked the dialog below will appear. Select LineString for geometry type and write filename (the filename will not be the final name so it is arbitraty).
 
-<img src="media\02_create_transects_linestring_dialog.JPG" alt="create shapefile layer dialog" style="max-width:70%">
+<img src="media\02_create_transects_linestring_dialog.JPG" alt="create shapefile layer dialog" style="max-width:50%">
 
 ### 2.2 Draw Transects
 Select the penicil button and then the digitizing tool bar button the the right of it to begin drawing.
-<div style="display: flex; align-items: flex-start;">
-    <div style="margin-right: 40px;">
-        <img src="media\03_select_pencil.JPG" alt="select pencil" style="max-width: 100%; height: 100%;">
-    </div>
-    <div>
-        <img src="media\04_select_digitizing_toolbar.JPG" alt="select digitizing toolbar" style="max-width: 100%; height: 100%;">
-    </div>
-</div>
+<img src="media\03_select_pencil.JPG" alt="select pencil" style="max-width: 50%; height: 100%;">
+<img src="media\04_select_digitizing_toolbar.JPG" alt="select digitizing toolbar" style="max-width: 50%; height: 100%;">
 
 For each transect right click at the desired *landward* end of the transect then again at the seaward end. Then left click to complete the transect.
 
-<img src="media\02_create_transects_linestring_dialog.JPG" alt="create shapefile layer dialog" style="max-width:70%">
+<img src="media\02_create_transects_linestring_dialog.JPG" alt="create shapefile layer dialog" style="max-width:50%">
 
 ### 2.3 Export File
+
+Once all transects have been drawn left click on the layer on the left hand menu. Then select "Export" and then "Save Features As..."
+<img src="media\06_expot_menu.png" alt="export menu" style="max-width:50%">
+
+After selecting this save a save file popup will open. Save the file `user_vinputs/<region>/<sitename>/<sitename>_transects.geojson`.
+<img src="media\07_save_file_dialog.JPG" alt="export menu" style="max-width:50%">
+
+## 3. Reference Shoreline
+For the reference shoreline the steps are the same except instead of making multimple line segments (transects) just create one linestring that is the entire reference shoreline and save it as `user_vinputs/<region>/<sitename>/<sitename>_shoreline.geojson`.
+
+<img src="media\08_save_shoreline.JPG" alt="save sl ref" style="max-width:50%">
+
+
 
 
