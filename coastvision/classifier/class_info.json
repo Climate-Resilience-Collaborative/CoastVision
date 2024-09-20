@@ -1,0 +1,5 @@
+{
+    "labels":{"sand":1,"white-water":2,"water":3,"other land features":4},
+    "colors":{"sand":[1, 0.65, 0],"white-water":[1,0,1],"water":[0.1,0.1,0.7],"other land features":[0.8,0.8,0.1]},
+    "colorsForBinaryClassif":{"land":[0.686,0.4313,0.29411], "water":[0.1,0.1,0.7]}
+}
