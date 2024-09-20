@@ -49,7 +49,7 @@ Satellite images need to be accurately registered, meaning that they must align 
 ### 4.1 Image Segmentation<a name="seg"></a>
 A machine learning model is used to classify each pixel in the image as either land or water. The inputs to this model are the pixel values (for the four bands R,G,B,NIR) as well as band maths such as NDWI and local standard deviation.
 
-<img src='media/image_segmentation.JPG' alt='Image Segmentation'>
+<img src='media/image_segmentation.JPG' alt='Image Segmentation' width='300' height='auto'>
 
 ### 4.2 Shoreline Extraction<a name="shoreline"></a>
 The Marching Squares Algorithm is used to extract the line between the water and land pixels which is used as the shoreline.
