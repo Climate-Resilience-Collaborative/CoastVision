@@ -319,7 +319,7 @@ def classify_single_image(toaPath, modelPklName, imMaskPath=None, beachType=None
     dir1 = os.path.dirname(toaPath) # this code ASSUMES that the file structure of the image is region/sitename/image
     sitename = os.path.basename(dir1)
     region = os.path.basename(os.path.dirname(dir1))
-    referenceImagePath = glob.glob(os.path.join('user_inputs', region, sitename, '*.tif'))[0] # glb returns list
+    # referenceImagePath = glob.glob(os.path.join('user_inputs', region, sitename, '*.tif'))[0] # glb returns list
     # referenceImagePath = glob.glob(os.path.join('user_inputs', region, sitename, f'{sitename}_reference_*.tif'))[0] # glb returns list
     #### TEMP ABM TAKE out padding #######
     # im_ms, im_mask = geospatialTools.pad_misscropped_image(referenceImagePath, toaPath, im_ms, im_mask)
@@ -536,7 +536,11 @@ def create_shoreline_buffer(region, sitename, im_shape, georef, pixel_size, max_
 
     with open(slBuffPath, 'r') as f:
         ref_sl_info = geojson.load(f)
-    ref_sl = np.array(ref_sl_info['features'][0]['geometry']['coordinates'])
+    if len(ref_sl_info['features'][0]['geometry']['coordinates']) == 1:
+        # this means its prolly saved as a multi string not linestring so just reduce the extra dimension
+        ref_sl = ref_sl_info['features'][0]['geometry']['coordinates'][0]
+    else:
+        ref_sl = np.array(ref_sl_info['features'][0]['geometry']['coordinates'])
     # fig, ax = plt.subplots(figsize=(10,10))
     
     ref_sl_pix = geospatialTools.convert_world2pix(ref_sl, georef)
@@ -1259,15 +1263,18 @@ def run_coastvision_single(region, sitename, itemID, siteInputs=None, justShorel
         #maxDistSlRef = 10
         #maxDistSlRef = 25
         maxDistSlRef = max_dist ###ABM
+        infoJson = {'minBeachArea':500, 'minWaterSize':500}
     # along_dist = 25
 
 
     if not metadataJson is None:
         try:
-            print(metadataJson)
             with open(metadataJson, 'r') as f:
                 data = json.load(f)
-            infoJson['pixel_size'] = data['properties']['pixel_resolution']
+            try:
+                infoJson['pixel_size'] = data['properties']['pixel_resolution']
+            except TypeError:
+                infoJson['pixel_size'] = 3
         except ValueError:
             print(f'coastvision.run_coastvision_single() {f}')
             infoJson['pixel_size'] = 3 # defualt pixel size is 3m
