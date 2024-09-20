@@ -3,6 +3,8 @@ data/
 outputs/
 sites/
 sites/PlanetScope_API_key.txt
+PlanetScope_API_key.txt
+*PlanetScope_API_key.txt
 
 # below is for Python
 # Byte-compiled / optimized / DLL files
