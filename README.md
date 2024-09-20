@@ -41,5 +41,38 @@ Satellite images need to be accurately registered, meaning that they must align 
 
 <img src='media/co-registration.gif' alt='Co-registration Example'>
 
-### 4. Shoreline Extraction
-####
+### 4. Shoreline Extraction<a name="sds"></a>
+#### 4.1 Image Segmentation<a name="seg"></a>
+A machine learning model is used to classify each pixel in the image as either land or water. The inputs to this model are the pixel values (for the four bands R,G,B,NIR) as well as band maths such as NDWI and local standard deviation.
+<img src='media/image_segmentation.JPG' alt='Image Segmentation'>
+
+#### 4.2 Shoreline Extraction<a name="shoreline"></a>
+The Marching Squares Algorithm is used to extract the line between the water and land pixels which is used as the shoreline.
+<img src='media/shoreline_extraction.JPG' alt='Shoreline Extraction'>
+
+#### 4.3 Transect Intersection<a name="intersect"></a>
+Coastal change is often measured through a series of shore normal transects. The intersection of SDS are computed and used to measure erosion and accreation along these transects. 
+<img src='media/transect_intersections.JPG' alt='Transect Intersections'>
+
+In this case the intersections are saved in a dataframe of the following structure:
+<table border="1">
+   <tr>
+      <th>Timestamp</th>
+      <th>Transect Label 1</th>
+      <th>Transect Label 2</th>
+      <th>...</th>
+      <th>Transect label n</th>
+      <!-- Add more headers as needed -->
+   </tr>
+   <tr>
+      <td>2019-03-03 20:43:11</td>
+      <td>Distance along transect (m)</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <!-- Add more data cells as needed -->
+   </tr>
+   <!-- Add more rows as needed -->
+</table>
+
+The distance along transect is the distance between the start (landward end) of the transect and where the shoreline intersects it.
