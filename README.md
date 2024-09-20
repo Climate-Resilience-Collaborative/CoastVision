@@ -6,7 +6,9 @@ https://github.com/Climate-Resilience-Collaborative/CoastVision/commits/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/Climate-Resilience-Collaborative/CoastVision)
 
-CoastVision is an open-source Python framework geared towards generating satellite-derived shorelines (SDS) in [PlanetScope](https://developers.planet.com/docs/data/planetscope/) imagery. Given a time window and an area of interest (AOI) CoastVision will:
+CoastVision is an open-source Python framework geared towards generating satellite-derived shorelines (SDS) in [PlanetScope](https://developers.planet.com/docs/data/planetscope/) imagery. Given a time window and an area of interest (AOI) CoastVision will download applicable PlanetScope satellite imagery, extract shorelines, and compute transect intersections.
+
+<img src="media/stages_plot.jpg" alt="Stages Plot">
 
 
 ### Table of Contents
@@ -38,16 +40,7 @@ Given an API key, and area of interest polygon and a timeframe applicable imager
 ## 3. Image Co-registration<a name="coreg"></a>
 Satellite images need to be accurately registered, meaning that they must align correctly with one another and with real-world coordinates. <a href="https://pypi.org/project/arosics/">AROSICS</a> and open-source Python package is used to co-register images to reduce error cause image missalignments. In the image below the right pane shows reduced image offsets after AROSICS co-registration. 
 
-![Co-registration Example](media/co-registration.gif)
 <img src='media/co-registration.gif' alt='Co-registration Example'>
 
-<div style="display: flex; align-items: flex-start;">
-    <div style="margin-right: 40px;">
-        <p>Satellite images need to be accurately registered, meaning that they must align correctly with one another and with real-world coordinates. <a href="https://pypi.org/project/arosics/">AROSICS</a> and open-source Python package is used to co-register images to reduce error cause image missalignments. In the image below the right pane shows reduced image offsets after AROSICS co-registration. </p>
-    </div>
-    <div>
-        <img src="media/arosics_logo.png" alt="Tidal Effect Example" style="max-width: 100%; height: auto;">
-    </div>
-</div>
-
-###
+### 4. Shoreline Extraction
+####
