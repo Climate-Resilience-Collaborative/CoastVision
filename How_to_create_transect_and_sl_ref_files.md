@@ -30,6 +30,9 @@ Once all transects have been drawn left click on the layer on the left hand menu
 After selecting this save a save file popup will open. Save the file `user_vinputs/<region>/<sitename>/<sitename>_transects.geojson`.
 <img src="media\07_save_file_dialog.JPG" alt="export menu" style="max-width:50%">
 
+:warning: When Choosing CRS choose the projection that the TIFF image you are using is in. See below.
+<img src="media\07.5_save as project.JPG" alt="CRS" style="max-width:50%">
+
 ## 3. Reference Shoreline
 For the reference shoreline the steps are the same except instead of making multimple line segments (transects) just create one linestring that is the entire reference shoreline and save it as `user_vinputs/<region>/<sitename>/<sitename>_shoreline.geojson`.
 
