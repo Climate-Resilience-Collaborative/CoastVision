@@ -54,7 +54,7 @@ A machine learning model is used to classify each pixel in the image as either l
 ### 4.2 Shoreline Extraction<a name="shoreline"></a>
 The Marching Squares Algorithm is used to extract the line between the water and land pixels which is used as the shoreline.
 
-<img src='media/shoreline_extraction.JPG' alt='Shoreline Extraction 'width='300' height='auto'>
+<img src='media/shoreline_extraction.JPG' alt='Shoreline Extraction' width='300' height='auto'>
 
 ### 4.3 Transect Intersection<a name="intersect"></a>
 Coastal change is often measured through a series of shore normal transects. The intersection of SDS are computed and used to measure erosion and accretion along these transects. 
