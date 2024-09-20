@@ -12,7 +12,7 @@ CoastVision is an open-source Python framework geared towards generating satelli
 
 <details>
 <summary><strong>Download applicable PlanetScope imagery</strong></summary>
-There are interesting things in here
+
 </details>
 <details>
 <summary><strong>Co-register Imagery using AROSICS</strong></summary>

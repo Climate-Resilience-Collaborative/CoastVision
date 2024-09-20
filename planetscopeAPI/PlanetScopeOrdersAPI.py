@@ -458,9 +458,8 @@ class PlanetScopeAPIOrder(object):
                 del request['products'][i]  # remove empty item group
         if len(request['products']) == 0:
             return None # that means the products list was empty
-        print('is anything making it this far?')
         response = requests.post(self.ORDERS_URL, data=json.dumps(request), auth=self.AUTH, headers=self.HEADERS)
-        print(response)
+        
         if self.PRINT_ALL:
             print(response)
         if not response.ok:
