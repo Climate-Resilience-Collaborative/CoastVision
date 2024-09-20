@@ -3,7 +3,7 @@
 https://github.com/Climate-Resilience-Collaborative/CoastVision/commits/)
 ![GitHub issues](https://img.shields.io/github/issues/Climate-Resilience-Collaborative/CoastVision)
 [![GitHub release](https://img.shields.io/github/release/Climate-Resilience-Collaborative/CoastVision)](https://GitHub.com/Climate-Resilience-Collaborative/CoastVision/releases/)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/Climate-Resilience-Collaborative/CoastVision)
 <!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2779293.svg)](https://doi.org/10.5281/zenodo.2779293) -->
 <!-- [![Join the chat at https://gitter.im/CoastSat/community](https://badges.gitter.im/spyder-ide/spyder.svg)](https://gitter.im/CoastSat/community) -->
