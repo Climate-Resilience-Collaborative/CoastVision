@@ -62,7 +62,7 @@ def plot_classif_and_intersection(toaPath, im_classif, transects, sl, slBuff):
     dir1 = os.path.dirname(toaPath) # this code ASSUMES that the file structure of the image is region/sitename/image
     sitename = os.path.basename(dir1)
     region = os.path.basename(os.path.dirname(dir1))
-    referenceImagePath = glob.glob(os.path.join('user_inputs', region, sitename, '*.tif'))[0] # glb returns list
+    # referenceImagePath = glob.glob(os.path.join('user_inputs', region, sitename, '*.tif'))[0] # glb returns list
 
 
     im_RGB = data_annotation_tool.rescale_image_intensity(im_ms[:,:,[2,1,0]], cloud_mask, 99.9)
