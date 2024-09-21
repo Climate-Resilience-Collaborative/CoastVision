@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import numpy as np
 from glob import glob
+import pyfes
 
 from coastvision import coastvision
 from coastvision import supportingFunctions
@@ -114,13 +115,59 @@ class CoastVisionRun(object):
         return None
     
 
-    def tidal_correction(self, reference_elevation = 0, beach_slope = 0.150):
-        # NOTE: waiting on what path_to_buffer is
-        path_to_aviso = os.path.join(r'D:\shoreline\CSTSI', 'aviso-fes-main', 'data', 'fes2014')
-        path_to_buffer = os.path.join(r'D:\shoreline\CSTSI', 'historical_data', "coastline_buffer_1mi.geojson")
-        self.intersection_df = coastvisionTides.tidal_correction_site(self.sitename, self.region, path_to_buffer, path_to_aviso, reference_elevation, plot_tide=False, beach_slope=beach_slope)
-        return self.intersection_df
-    
+    def tidal_correction_FES2014(self, fes2014_path, offshore_coord, reference_elevation=0, slope=0.12):
+        if not os.path.exists(fes2014_path):
+            print('path to FES2014 is not set up correct')
+            return
+        dates_sat = self.intersection_df.index
+        ###### GET TIDE DATA  ########
+        # point to the folder where you downloaded the .nc files
+        config_ocean = os.path.join(fes2014_path, 'ocean_tide.ini') # change to ocean_tide.ini
+        config_load =  os.path.join(fes2014_path, 'load_tide.ini')  # change to load_tide.ini
+        ocean_tide = pyfes.Handler("ocean", "io", config_ocean)
+        load_tide = pyfes.Handler("radial", "io", config_load)
+        tide_sat = coastvisionTides.compute_tide_dates(offshore_coord, dates_sat, ocean_tide, load_tide)
+        ###### SAVE TIDE DATA ########
+        tides = pd.DataFrame(tide_sat, columns=['tide'], index=dates_sat)
+        tides.index.name = 'dates'
+
+        ###### TIDAL CORRECTION ########
+        corrected = self.intersection_df.copy()
+        tides['correction'] = (tides['tide']-reference_elevation)/slope
+        # correct for each day
+        for date in tides.index:
+            corrected.loc[date] = corrected.loc[date] + tides.loc[date,'correction']
+        ## save ## 
+        path_corrected = os.path.join(self.outdir, f'{self.sitename}_tidally_corrected_{reference_elevation}m.csv')
+        corrected.to_csv(path_corrected)
+
+        return corrected
+
+    def tidal_correction_tidegauge(self, tidegauge, reference_elevation=0, beach_slope=0.12):
+        """
+        Inputs
+            sitename: site to correct
+            region: region of site
+            reference_elevation: the reference elevation (Mean sea level=0) to correct intersection to. default 0m
+            beach_slope: choose a generic beach slope (**need to add ability to pass list of variable beach slopes**) defualt 0.15
+        outputs
+            saves a csv with corrected shorelines intersections
+            saves a csv with tide level at the time of each image
+        """
+        tides = coastvisionTides.get_tides_from_tidegauge(self.intersection_df, tidegauge)
+        tides = tides.dropna()
+        ###### TIDAL CORRECTION ########
+        corrected = self.intersection_df.copy()
+        tides['correction'] = (tides['sl']-reference_elevation) / beach_slope
+        # correct for each day
+        for date in tides.index:
+            corrected.loc[date] = corrected.loc[date] + tides.loc[date,'correction']
+        ## save ## 
+        path_corrected = os.path.join(self.outdir, f'{self.sitename}_tidally_corrected_{reference_elevation}m.csv')
+        corrected.to_csv(path_corrected)
+
+        return corrected
+
 
     def intersection_QAQC(self, remove_fraction = 0.15, window_days = 50, limit = 30):
         """
