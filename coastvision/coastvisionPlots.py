@@ -52,8 +52,11 @@ def add_transect_intersections_to_ax(ax, transects, sl, toaPath):
             if intersection_point.geom_type == 'Point':
                 ax.plot(intersection_point.x, intersection_point.y, 'ro', markersize=3)  # Plot as red dot
             elif intersection_point.geom_type == 'MultiPoint':
-                for pt in intersection_point:
-                    ax.plot(pt.x, pt.y, 'ro')
+                try:
+                    for pt in intersection_point:
+                        ax.plot(pt.x, pt.y, 'ro')
+                except:
+                    print('\n could not plot', toaPath)
 
 
 

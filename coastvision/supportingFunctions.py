@@ -7,7 +7,6 @@ Author: Joel Nicolow, Climate Resiliance Initiative, School of Ocean and Earth S
 
 #### Misc
 
-
 def clean_timestamp(rawTimestamp):
     underscoreCount = rawTimestamp.count('_')
     if underscoreCount == 2:
@@ -20,7 +19,6 @@ def clean_timestamp(rawTimestamp):
     cleanTimestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')
     
     return cleanTimestamp
-
 
 
 def yearmonth_inYearmonth_range(year, month, yearMonthRange):

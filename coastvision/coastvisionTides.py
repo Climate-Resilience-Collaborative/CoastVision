@@ -20,7 +20,6 @@ import geopandas as gpd
 
 
 
-
 ## FUNCTION FROM COASTSAT_SLOPE ###
 def compute_tide_dates(coords,dates,ocean_tide,load_tide):
     'compute time-series of water level for a location and dates (using a dates vector)'
@@ -73,8 +72,6 @@ def plot_tides(sitename, coords, dates_sat, tide_sat, ocean_tide,load_tide, date
                 pytz.utc.localize(datetime(daterange[1],1,1))]
 
     dates_fes, tide_fes = compute_tide(coords,daterange,time_step,ocean_tide,load_tide)
-
-    ##### PLOT TIDES ######### 
     # plot tide time-series
     fig, ax = plt.subplots(1,1,figsize=(12,3), tight_layout=True)
     ax.set_title('Sub-sampled tide levels')
@@ -84,12 +81,6 @@ def plot_tides(sitename, coords, dates_sat, tide_sat, ocean_tide,load_tide, date
     ax.set_ylabel('tide level [m]')
     path_save = os.path.join(os.getcwd(), 'outputs', region, sitename, (sitename + '_tides.png'))
     plt.savefig(path_save)
-
-
-
-
-
-# def get_tides_from_avisoFES():
 
 
 def get_tides_from_tidegauge(sat_intersections, tidegauge):
@@ -136,11 +127,9 @@ def tidal_correction_tidegauge(sat_intersections, tidegauge, reference_elevation
     # correct for each day
     for date in tides.index:
         corrected.loc[date] = corrected.loc[date] + tides.loc[date,'correction']
-
     ## save ## 
     path_corrected = os.path.join(os.getcwd(), 'outputs', 'hawaii', 'waikiki', f'waikiki_tidally_corrected_{reference_elevation}m.csv')
     corrected.to_csv(path_corrected)
-
     return corrected
 
 
@@ -155,7 +144,6 @@ def tidal_correction_FES2014(sat_intersections, fes2014_path, coords, reference_
         saves a csv with corrected shorelines intersections
     """
     dates_sat = sat_intersections.index
-
     ###### GET TIDE DATA  ########
     # point to the folder where you downloaded the .nc files
     config_ocean = os.path.join(fes2014_path, 'ocean_tide.ini') # change to ocean_tide.ini
@@ -168,7 +156,6 @@ def tidal_correction_FES2014(sat_intersections, fes2014_path, coords, reference_
     tides.index.name = 'dates'
     # path = os.path.join(os.getcwd(), 'user_inputs', region, sitename, (sitename + '_tides.csv'))
     # tides.to_csv(path) 
-
     ###### TIDAL CORRECTION ########
     corrected = sat_intersections.copy()
     tides['correction'] = (tides['tide']-reference_elevation)/beach_slope

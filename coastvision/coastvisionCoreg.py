@@ -7,24 +7,21 @@ from datetime import datetime, timedelta
 import time
 import glob
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import shutil
 import rasterio
-from osgeo import gdal
+# from osgeo import gdal
 import logging
 import sys 
-import sklearn
-if sklearn.__version__[:4] == '0.20':
-    from sklearn.externals import joblib
-else:
-    import joblib
-import skimage.morphology as morphology
+# import sklearn
+# if sklearn.__version__[:4] == '0.20':
+#     from sklearn.externals import joblib
+# else:
+#     import joblib
+# import skimage.morphology as morphology
 import signal
 
 from coastvision import geospatialTools
-from coastvision import coastvision
-from coastvision import dataSelectionTools
-from coastvision import supportingFunctions
 from arosics import COREG_LOCAL, COREG, DESHIFTER
 
 
@@ -304,12 +301,12 @@ def coreg_site(region, site, grid_res, start=0):
     #save mask
     # save_bool_mask(im_ref_mask, im_ref_mask_path, ref_im_path)
 
-    #dummy.. to note if coreg was started
+    #dummy var.. to note if coreg was started
     f= open(os.path.join(datapath, (f"coregistration_{site}.txt")),"w+")
     f.write(f'\n coregistration started on {datetime.now()}')
     f.close()
 
-    #dummy.. to save failed image ids
+    #dummy var.. to save failed image ids
     f= open(os.path.join(datapath, (f"failed_{site}.txt")),"w+")
     f.write(f'\n These images were not coregistered:')
     f.close()
@@ -318,7 +315,6 @@ def coreg_site(region, site, grid_res, start=0):
     #####     RUN COREGISTRATION    ##############################################
     ##############################################################################
 
-    # failed=[] #start empty list
     time_start = datetime.now()
     for n,file in enumerate(files_tif[start:]): ## in case it stops, pick up where it left off by changing 'start' value
         name = os.path.basename(file)[0:20]
@@ -326,10 +322,8 @@ def coreg_site(region, site, grid_res, start=0):
         
         #### run coregistration
         im_failed, level = coreg_single(im_ref=ref_im_path, im_tgt=file, grid_res=grid_res, temp_dir=temp_dir)
-        ####
         if im_failed is None:
             continue
-        # all failed images (level 0 and 1)
         f= open(os.path.join(datapath, (f"failed_{site}.txt")),"a")
         f.write(f'\n{im_failed}')
         f.close()

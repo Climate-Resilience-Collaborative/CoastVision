@@ -60,24 +60,6 @@ def convert_lonlat_coord_arr_to_WGS84(coordArr, epsgNew):
     :return: 2d array same format as input array but now transformed into the provided EPSG
     """
     return convert_coor_arr_epsg(coordArr, 4326, epsgNew)
-    # nameList = []
-    # PointList = []
-    # for i in range(0, len(coordArr)):
-    #     point = Point(coordArr[i][0], coordArr[i][1])
-    #     PointList.append(point)
-    #     nameList.append(i)
-
-
-    # d = {'name': nameList, 'geometry': PointList}
-    # gdf = geopandas.GeoDataFrame(d, crs=4326) # this EPSG is for lon/lat in degrees
-    # gdf = gdf.to_crs(int(epsgNew)) # just incase a string or float was passed we cast to an int
-    # retuArray = []
-    # for row in range(0, gdf.shape[0], 1):
-    #     lon = gdf.loc[row, 'geometry'].x
-    #     lat = gdf.loc[row, 'geometry'].y
-    #     retuArray.append([lon, lat])
-    # return(retuArray)
-
 
 
 def get_im_ms(fn):
@@ -436,55 +418,3 @@ def get_coordinates_from_geojson(filePath):
     with open(filePath,'rb') as f:
         data = geojson.load(f)
     return np.array(data["features"][0]['geometry']['coordinates']) # down stream code requieres np array format
-
-# from arosics import COREG_LOCAL, DESHIFTER, COREG
-# def local_coreg(im_reference, im_target, im_out_local, 
-#                 land_mask_ref = None, land_mask_tgt = None, 
-#                 grid_res = 100, window_size = (256,256), 
-#                 min_points = 5,
-#                 #footprint_poly_ref=None, footprint_poly_tgt=None,
-#                 q = True, progress = False, ignore_errors = True,
-#                 filter_level = 2):
-        
-#     # Global coregistration
-#     print("Global coregistration")
-#     print(f'image out local for coreg: {im_out_local}')
-#     CRL = COREG_LOCAL(im_reference, im_target,
-#                       path_out = im_out_local, fmt_out = 'GTiff',
-#                       grid_res = grid_res, window_size = window_size,
-#                       tieP_filter_level = filter_level, 
-
-#                       # Data mask settings
-#                       mask_baddata_ref = land_mask_ref, 
-#                       mask_baddata_tgt = land_mask_tgt,
-                      
-#                       # Console output settings
-#                       q = q, progress = progress, ignore_errors = ignore_errors, 
-                      
-#                       # Hard coded settings
-#                       nodata = (0,0),
-#                       min_reliability = 50,
-#                       #rs_max_outlier = 10,
-#                       #r_b4match = 1,
-#                       #s_b4match = 1,
-#                       #align_grids = True,
-#                       #footprint_poly_ref = footprint_poly_ref,
-#                       #footprint_poly_tgt = footprint_poly_tgt,
-#                       )
-    
-#     #CRL.view_CoRegPoints()
-#     #CRL.tiepoint_grid.to_PointShapefile(path_out=im_out_local.replace('.tif','.shp'))
-#     #CRL.view_CoRegPoints_folium().save(im_out_local.replace('.tif','.html'))
-    
-#     # Correct image
-#         # High min # points creates shift based on average of x/y shifts only
-#     CRL.correct_shifts(min_points_local_corr = min_points)
-    
-#     # Determine success
-#     coreg_success = CRL.coreg_info['success']
-    
-#     if not coreg_success:
-#         copyfile(im_target, im_out_local)
-#         print('Coregistration failed, raw image copied instead')
-    
-#     return CRL.coreg_info, coreg_success

@@ -11,25 +11,28 @@ import rasterio
 import numpy as np
 import numpy.ma as ma
 from osgeo import gdal#, osr
-### ABM: fix for import bug for Anna 
 import sklearn
 if sklearn.__version__[:4] == '0.20':
     from sklearn.externals import joblib
 else:
     import joblib
 # ORIGINAL:
-# from sklearn.externals import joblib 
 from astropy.convolution import convolve
 import skimage.morphology as morphology
-from coastvision import supportingFunctions
-from coastvision import geospatialTools
+from scipy.ndimage import gaussian_filter1d
 import geojson
 from shapely.geometry import Point, shape, LineString
 from geopandas import GeoDataFrame
-
 import glob
+import math
+from skimage import measure
+from shapely import geometry
+from shapely.geometry import Point
+from shapely.geometry.polygon import Polygon
 
-max_dist = 30
+from coastvision import supportingFunctions
+from coastvision import geospatialTools
+from coastvision.classifier import pixelclassifier
 
 
 #### image classification ####
@@ -143,7 +146,6 @@ def calculate_features(im_ms, cloud_mask, im_bool):
     features = np.append(features, np.expand_dims(im_std[im_bool],axis=1), axis=-1)
     return features
 
-from coastvision.classifier import pixelclassifier
 def classify_image(im_ms, clf, im_mask=None, nonbinary=False):
     """
     This returns a binary image classifier (land and water)
@@ -161,8 +163,6 @@ def classify_image(im_ms, clf, im_mask=None, nonbinary=False):
     #predictionsBinary[~im_mask] = 1 # set everything masked to a certain class
 
     return predictionsBinary
-
-
 
 def classify_image_NN(im_ms, cloud_mask, clf):
     """
@@ -321,9 +321,6 @@ def classify_single_image(toaPath, modelPklName, imMaskPath=None, beachType=None
     region = os.path.basename(os.path.dirname(dir1))
     # referenceImagePath = glob.glob(os.path.join('user_inputs', region, sitename, '*.tif'))[0] # glb returns list
     # referenceImagePath = glob.glob(os.path.join('user_inputs', region, sitename, f'{sitename}_reference_*.tif'))[0] # glb returns list
-    #### TEMP ABM TAKE out padding #######
-    # im_ms, im_mask = geospatialTools.pad_misscropped_image(referenceImagePath, toaPath, im_ms, im_mask)
-
 
     # if beachType is None:
     #     modelPklName = "default.pkl"
@@ -364,9 +361,6 @@ def classify_single_image(toaPath, modelPklName, imMaskPath=None, beachType=None
         classPath = os.path.join(os.getcwd(), 'outputs', region, siteName, 'classification', 'tifs', ("classif_" + im_fn))
         with rasterio.open(classPath, 'w', **kwargs) as dst:
             dst.write_band(1, im_classif.astype(rasterio.uint8))
-    # print(im_ms.shape)
-    # print(src.bounds)
-    # print(src.width, src.height)
 
     return(im_classif)
 
@@ -546,35 +540,25 @@ def create_shoreline_buffer(region, sitename, im_shape, georef, pixel_size, max_
     ref_sl_pix = geospatialTools.convert_world2pix(ref_sl, georef)
     ref_sl_pix_rounded = np.round(ref_sl_pix).astype(int)
 
+
     # # assume that "points" is a numpy array containing the coordinates of the shoreline points
     # line = LineString(ref_sl_pix_rounded)
-
     # # create a buffer around the shoreline
     # buffer_width = 10 # specify the buffer width in units of the input coordinates
     # buffer_poly = line.buffer(buffer_width)
-
     # # convert the buffer polygon to a binary mask
     # mask = np.ones(im_shape).astype(bool)
-    # print('hey wtf?')
     # # plot the shoreline and the buffer
     # import matplotlib.pyplot as plt
     # fig, ax = plt.subplots(figsize=(10,10))
     # ax.plot(ref_sl_pix_rounded[:,0], ref_sl_pix_rounded[:,1], linewidth=3) 
     # ax.imshow(mask, cmap=plt.cm.gray)
     # # ax.plot(ref_sl_pix[:, 1], ref_sl_pix[:, 0], linewidth=3) 
-
     # create binary image of the reference shoreline (1 where the shoreline is 0 otherwise)
+
     im_binary = np.zeros(im_shape)
-    print(im_shape)
-    #################################################### ABM
-    ######## CHECK IMAGE SIZE and make new buffer ##############
     # print(im_shape)
-
-    #######################################
-
     im_valid = False
-    # print('yo')
-
     ref_sl_pix_rounded = supportingFunctions.add_points(ref_sl_pix_rounded, max_dist)
     # ref_sl_pix_rounded = supportingFunctions.add_points(ref_sl_pix, max_dist)
     for j in range(len(ref_sl_pix_rounded)):
@@ -619,7 +603,6 @@ def crop_shoreline_with_im_mask(contour, imMaskPath, buff=3):
         # NOTE NEED TO ALSO LOOK AT VALUE OF IM_MS BECAUSE IF IT IS [0 0 0 0] THIS MEANS THIS POINT IS PART OF THE BLACK BACKGROUND
         if len(pointValList) == 1 and not pointValList[0]: 
             cleanedContour.append([contour[point][0], contour[point][1]])
-
     return(np.array(cleanedContour))
 
 
@@ -637,8 +620,6 @@ def get_contour_real_world_length(contour, minSlLength=5):
     return(totalLength)
 
 
-import math
-from scipy.ndimage import gaussian_filter1d
 def remove_small_shorelines_and_smooth_contour(contour, sigma=0.1, smoothFilterWindow=None, minSlLength=5, maxDistBetweenpoints=10):
     """
     This function removes small contours and uses the gaussian smoothing algorithm to make the contour smooze (if sigma is not None)
@@ -725,10 +706,6 @@ def remove_small_shorelines_and_smooth_contour(contour, sigma=0.1, smoothFilterW
     return(outputContour)
 
 
-from skimage import measure
-from shapely import geometry
-from shapely.geometry import Point
-from shapely.geometry.polygon import Polygon
 def shoreline_contour_extract_single(im_classif, region, sitename, georef, shorelinebuff=None, min_sl_len=20, pixel_size=3, max_dist=max_dist, imMaskPath=None, saveContour=False, timestamp=None, smoothShorelineSigma=None, smoothWindow=None, year=None):
     """
     This function takes the pixel classification matrix and and creates a contour of the shoreline
@@ -819,11 +796,7 @@ def shoreline_contour_extract_single(im_classif, region, sitename, georef, shore
         validContour = np.array(validContour)
     else:
         validContour = geospatialTools.convert_pix2world(mainContour, georef)
-    
-        ###################################
-    # validContour = geospatialTools.convert_pix2world(mainContour, georef) # ABM DELETE 
-        #####################################
-    
+
     validContour = remove_small_shorelines_and_smooth_contour(validContour, sigma=smoothShorelineSigma, smoothFilterWindow=smoothWindow, minSlLength=min_sl_len)
 
     if saveContour:
@@ -852,7 +825,6 @@ def add_all_contours_to_one_site_geojson(reg, sites = None, qaqc=False):  ## ABM
     qaqc: if True, will save with '_qaqc' extension, else without
     '''
 
-
     dataDir = os.path.join(os.getcwd(), 'outputs', reg)
     region =reg
     # sites = os.listdir(dataDir)
@@ -876,9 +848,6 @@ def add_all_contours_to_one_site_geojson(reg, sites = None, qaqc=False):  ## ABM
                         "features":[]}
         for fn in contourGeojsons:
             if '_contour.geojson' in fn:
-                # print(fn.split('_contour.geojson'))
-                # print(fn.split('_contour.geojson')[0].split(sitename + '_')[1])
-                # print(fn.split('_contour.geojson')[0].split(sitename + '_'))
                 # get values needed for geojson
                 rawTimestamp = fn.split('_contour.geojson')[0].split(sitename + '_')[1]
                 if len(rawTimestamp) == 18:
@@ -988,8 +957,6 @@ def transect_intersect_single(along_dist, contour, transects):
     """
     # sl = geospatialTools.convert_pix2world(contour, georef) 
     sl = contour # now contour is in real world coordinates
-    # print(sl)
-    # print(transects)
     intersections = np.zeros((1,len(transects)))
     i = 0
     for j,key in enumerate(list(transects.keys())): 
@@ -1044,7 +1011,7 @@ def transect_intersect_single(along_dist, contour, transects):
 
 ###############################################
 
-### ABM HELPER FUNCTION  to extent transect line further inland for compute_intersection_CRC function below
+###  HELPER FUNCTION  to extent transect line further inland for compute_intersection_CRC function below
 ## if transect and line dont intersect, results in a nan
 def extend_linestring(line, distance):
     # Get the start and end points of the LineString
@@ -1070,8 +1037,8 @@ def transect_intersect_single_crc(along_dist, contour, region, sitename, timesta
     """
     # print('\n', timestamp)
     ### LOAD transect
-    filename = os.path.join(os.getcwd(), 'user_inputs', region, sitename, (sitename + '_transects.geojson'))
-    transects = gpd.read_file(filename)
+    transects_path  = os.path.join(os.getcwd(), 'user_inputs', region, sitename, (sitename + '_transects.geojson'))
+    transects = gpd.read_file(transects_path )
 
     ### LOAD contour
     contour_path = glob.glob(os.path.join(os.getcwd(), 'outputs', region, sitename, 'shoreline', 'contours', ('*'+timestamp+'*')))[0]
@@ -1080,47 +1047,39 @@ def transect_intersect_single_crc(along_dist, contour, region, sitename, timesta
     #initiate cross_dist
     cross_dist = dict()
     x,y = [],[]
+
     #iterate over each transect
-    for n,t in enumerate(transects.geometry): 
-        t_ext = extend_linestring(t,extend_line)
-        #intersect transect with contour
-        intersect_point = contour_gpd.intersection(t_ext)
-        #get initial transect point (landward), t1
-        t1 = Point(t_ext.coords[0]) 
-        # get distance from initial transect point to intersect
-        d = intersect_point.distance(t1)[0]
-        # now correct transect extension back
-        d = d-extend_line
-        bad = False #set default bad=False
-        #### Now clean up data by removing distances if transect overlaps, or if contour points are far away            
-        # ---------------------------------------
-        #### Dummy check distances from contour points to intersect. if more than 25m, make nan
-        #def linestring_to_points(line,i):
-        #    return (line.coords[i])
-        #contour_coords = [linestring_to_points(c['geometry'][0],i) for i in range(len(line.coords))]
+    for n, transect in enumerate(transects.geometry):
+        # Extend transect and calculate intersection with contour
+        transect_extended = extend_linestring(transect, extend_line)
+        intersect_point = contour_gpd.intersection(transect_extended)
+
+        # Get landward point of transect and calculate distance
+        t1 = Point(transect_extended.coords[0])
+        distance = intersect_point.distance(t1)[0] - extend_line
+
+        # Check distances and overlapping transects
+        bad = False
         dist_to_contour_coords = [intersect_point.distance(Point(contour[i]))[0] for i in range(len(contour))]
-        if min(dist_to_contour_coords) > along_dist:
-            d = np.nan
+
+        if min(dist_to_contour_coords) > along_dist or sum(transects.intersects(transect)) > 1:
+            distance = np.nan
             bad = True
-        #### Dummy check if any transects overlap. if so, make distance nan
-        if sum(transects.intersects(t)) > 1:
-            d = np.nan
-            bad = True
-        # ---------------------------------------
-        cross_dist[str(n)] = d
-        if bad == False:
+
+        # Update cross distance and coordinates
+        cross_dist[str(n)] = distance
+        if not bad:
             try:
                 x.append(intersect_point.x[0])
                 y.append(intersect_point.y[0])
-            except:
-                print('', end='', flush=True)
+            except IndexError:
+                pass  # Handle missing points
 
+    # Create GeoDataFrame for intersections
     geometry = [Point(xy) for xy in zip(x, y)]
     intersections = GeoDataFrame(np.arange(len(x)), crs="EPSG:32604", geometry=geometry)
-    # print(cross_dist)
-    # print(intersections)
-    return(cross_dist, intersections)
 
+    return cross_dist, intersections
 
 
 #### misc ####
@@ -1157,7 +1116,6 @@ def is_sat_img_valid(region, sitename, tifPath, udmTifPath, maxDist=30, validPix
     :param validPixThreshold: int, number of pixels that the sat image has inside of the reference shoreline buffer (default=20)
 
     """
-    
     
     year = os.path.basename(tifPath)[0:4]
     # data = gdal.Open(tifPath, gdal.GA_ReadOnly)
@@ -1302,9 +1260,10 @@ def run_coastvision_single(region, sitename, itemID, siteInputs=None, justShorel
                                                         smoothShorelineSigma=smoothShoreline, smoothWindow=smoothWindow,
                                                         year=int(itemID[0:4]))
     # is conour valid
-    if contour is None or len(contour) == 0 or contour.shape[0] == 0:
+    if contour is None or contour.shape[0] == 0 or len(contour) == 0:
         # this means the image didnt include any of the reference shoreline (no contours extracted)
-        print(f'skipping this image because it doesn\'t contain any of the sl ref: {toaPath}')
+        # print(f'skipping this image because it doesn\'t contain any of the sl ref: {toaPath}')
+        print('  contour outside reference')
     else:
         if dataProducts:
             # plot contour and classif
@@ -1314,7 +1273,6 @@ def run_coastvision_single(region, sitename, itemID, siteInputs=None, justShorel
             # supportingFunctions.create_dir(os.path.join(os.getcwd(), 'outputs', region, sitename, 'data_products', 'contours'))
             # savePath = os.path.join(os.getcwd(), 'outputs', region, sitename, 'data_products', 'classification', f"{sitename}_{timestamp}_rgb_classif_sl_plot.png")
             # if shorelinebuff is None:
-            #     print('no way this cant be none')
             #     # NOTE this is slightly redondent but would only really happen if you are running one image at a time and at that point the time is negligable
             #     shorelinebuff = create_shoreline_buffer(region, sitename, im_shape=im_classif.shape, georef=georef, pixel_size=int(infoJson['pixel_size']), max_dist=maxDistSlRef, timeperiod=int(itemID[0:4]))
             # coastvisionPlots.rgb_classif_plot_single(toaPath, im_classif, sl=pixCoordContour, slBuff=shorelinebuff, savePath=savePath)
