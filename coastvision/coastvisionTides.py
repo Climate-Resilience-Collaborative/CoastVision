@@ -106,66 +106,67 @@ def get_tides_from_tidegauge(sat_intersections, tidegauge):
     return interpolated_tides
 
 
-def tidal_correction_tidegauge(sat_intersections, tidegauge, reference_elevation=0, beach_slope=0.12):
-    """
-    Inputs
-        sitename: site to correct
-        region: region of site
-        reference_elevation: the reference elevation (Mean sea level=0) to correct intersection to. default 0m
-        beach_slope: choose a generic beach slope (**need to add ability to pass list of variable beach slopes**) defualt 0.15
-    outputs
-        saves a csv with corrected shorelines intersections
-        saves a csv with tide level at the time of each image
-    """
-    tides = get_tides_from_tidegauge(sat_intersections, tidegauge)
-    tides = tides.dropna()
-    dates_sat = sat_intersections.index
+## functions below are in coastvisionRun class
+# def tidal_correction_tidegauge(sat_intersections, tidegauge, reference_elevation=0, beach_slope=0.12):
+#     """
+#     Inputs
+#         sitename: site to correct
+#         region: region of site
+#         reference_elevation: the reference elevation (Mean sea level=0) to correct intersection to. default 0m
+#         beach_slope: choose a generic beach slope (**need to add ability to pass list of variable beach slopes**) defualt 0.15
+#     outputs
+#         saves a csv with corrected shorelines intersections
+#         saves a csv with tide level at the time of each image
+#     """
+#     tides = get_tides_from_tidegauge(sat_intersections, tidegauge)
+#     tides = tides.dropna()
+#     dates_sat = sat_intersections.index
         
-    ###### TIDAL CORRECTION ########
-    corrected = sat_intersections.copy()
-    tides['correction'] = (tides['sl']-reference_elevation) / beach_slope
-    # correct for each day
-    for date in tides.index:
-        corrected.loc[date] = corrected.loc[date] + tides.loc[date,'correction']
-    ## save ## 
-    path_corrected = os.path.join(os.getcwd(), 'outputs', 'hawaii', 'waikiki', f'waikiki_tidally_corrected_{reference_elevation}m.csv')
-    corrected.to_csv(path_corrected)
-    return corrected
+#     ###### TIDAL CORRECTION ########
+#     corrected = sat_intersections.copy()
+#     tides['correction'] = (tides['sl']-reference_elevation) / beach_slope
+#     # correct for each day
+#     for date in tides.index:
+#         corrected.loc[date] = corrected.loc[date] + tides.loc[date,'correction']
+#     ## save ## 
+#     path_corrected = os.path.join(os.getcwd(), 'outputs', 'hawaii', 'waikiki', f'waikiki_tidally_corrected_{reference_elevation}m.csv')
+#     corrected.to_csv(path_corrected)
+#     return corrected
 
 
-def tidal_correction_FES2014(sat_intersections, fes2014_path, coords, reference_elevation=0, beach_slope=0.12):
-    """
-    Inputs
-        sitename: site to correct
-        region: region of site
-        reference_elevation: the reference elevation (Mean sea level=0) to correct intersection to. default 0m
-        beach_slope: choose a generic beach slope (**need to add ability to pass list of variable beach slopes**) defualt 0.15
-    outputs
-        saves a csv with corrected shorelines intersections
-    """
-    dates_sat = sat_intersections.index
-    ###### GET TIDE DATA  ########
-    # point to the folder where you downloaded the .nc files
-    config_ocean = os.path.join(fes2014_path, 'ocean_tide.ini') # change to ocean_tide.ini
-    config_load =  os.path.join(fes2014_path, 'load_tide.ini')  # change to load_tide.ini
-    ocean_tide = pyfes.Handler("ocean", "io", config_ocean)
-    load_tide = pyfes.Handler("radial", "io", config_load)
-    tide_sat = compute_tide_dates(coords, dates_sat, ocean_tide, load_tide)
-    ###### SAVE TIDE DATA ########
-    tides = pd.DataFrame(tide_sat, columns=['tide'], index=dates_sat)
-    tides.index.name = 'dates'
-    # path = os.path.join(os.getcwd(), 'user_inputs', region, sitename, (sitename + '_tides.csv'))
-    # tides.to_csv(path) 
-    ###### TIDAL CORRECTION ########
-    corrected = sat_intersections.copy()
-    tides['correction'] = (tides['tide']-reference_elevation)/beach_slope
-    # correct for each day
-    for date in tides.index:
-        corrected.loc[date] = corrected.loc[date] + tides.loc[date,'correction']
-    ## save ## 
-    path_corrected = os.path.join(os.getcwd(), 'outputs', 'hawaii', 'waikiki', f'waikiki_tidally_corrected_{reference_elevation}m.csv')
-    corrected.to_csv(path_corrected)
+# def tidal_correction_FES2014(sat_intersections, fes2014_path, coords, reference_elevation=0, beach_slope=0.12):
+#     """
+#     Inputs
+#         sitename: site to correct
+#         region: region of site
+#         reference_elevation: the reference elevation (Mean sea level=0) to correct intersection to. default 0m
+#         beach_slope: choose a generic beach slope (**need to add ability to pass list of variable beach slopes**) defualt 0.15
+#     outputs
+#         saves a csv with corrected shorelines intersections
+#     """
+#     dates_sat = sat_intersections.index
+#     ###### GET TIDE DATA  ########
+#     # point to the folder where you downloaded the .nc files
+#     config_ocean = os.path.join(fes2014_path, 'ocean_tide.ini') # change to ocean_tide.ini
+#     config_load =  os.path.join(fes2014_path, 'load_tide.ini')  # change to load_tide.ini
+#     ocean_tide = pyfes.Handler("ocean", "io", config_ocean)
+#     load_tide = pyfes.Handler("radial", "io", config_load)
+#     tide_sat = compute_tide_dates(coords, dates_sat, ocean_tide, load_tide)
+#     ###### SAVE TIDE DATA ########
+#     tides = pd.DataFrame(tide_sat, columns=['tide'], index=dates_sat)
+#     tides.index.name = 'dates'
+#     # path = os.path.join(os.getcwd(), 'user_inputs', region, sitename, (sitename + '_tides.csv'))
+#     # tides.to_csv(path) 
+#     ###### TIDAL CORRECTION ########
+#     corrected = sat_intersections.copy()
+#     tides['correction'] = (tides['tide']-reference_elevation)/beach_slope
+#     # correct for each day
+#     for date in tides.index:
+#         corrected.loc[date] = corrected.loc[date] + tides.loc[date,'correction']
+#     ## save ## 
+#     path_corrected = os.path.join(os.getcwd(), 'outputs', 'hawaii', 'waikiki', f'waikiki_tidally_corrected_{reference_elevation}m.csv')
+#     corrected.to_csv(path_corrected)
 
-    return corrected
+#     return corrected
 
 
