@@ -33,7 +33,7 @@ from shapely.geometry.polygon import Polygon
 from coastvision import supportingFunctions
 from coastvision import geospatialTools
 from coastvision.classifier import pixelclassifier
-
+max_dist=40
 
 #### image classification ####
 def image_std(image, radius):

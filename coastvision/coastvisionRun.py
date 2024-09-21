@@ -115,7 +115,7 @@ class CoastVisionRun(object):
         return None
     
 
-    def tidal_correction_FES2014(self, fes2014_path, offshore_coord, reference_elevation=0, slope=0.12):
+    def tidal_correction_FES2014(self, fes2014_path, offshore_coord, reference_elevation=0, beach_slope=0.12):
         if not os.path.exists(fes2014_path):
             print('path to FES2014 is not set up correct')
             return
@@ -133,7 +133,7 @@ class CoastVisionRun(object):
 
         ###### TIDAL CORRECTION ########
         corrected = self.intersection_df.copy()
-        tides['correction'] = (tides['tide']-reference_elevation)/slope
+        tides['correction'] = (tides['tide']-reference_elevation)/beach_slope
         # correct for each day
         for date in tides.index:
             corrected.loc[date] = corrected.loc[date] + tides.loc[date,'correction']

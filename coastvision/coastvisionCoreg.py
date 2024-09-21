@@ -67,7 +67,7 @@ def select_reference_im(region, site, ref_im_path = None):
 def timeout_handler(signum, frame):
     raise TimeoutError("Timeout occurred")
 
-def coreg_single(im_ref, im_tgt, grid_res, temp_dir):
+def coreg_single(im_ref, im_tgt, grid_res):
     """
     Function to perform co-registration on a single image given settings and a reference image
 
@@ -287,7 +287,7 @@ def coreg_site(region, site, grid_res, start=0):
     ### Format image mask + ref image #####
     #######################################
     # get reference image and create mask for reference image
-    # ref_im_path = select_reference_im(region, site, ref_im_path = None)
+    ref_im_path = select_reference_im(region, site, ref_im_path = None)
     # # load udm cloud mask based on ref image id
     # im_ref_id = os.path.basename(ref_im_path)[0:20]
     # im_ref_cloud_path = glob.glob(os.path.join(datapath, (im_ref_id+'*udm2_clip.tif')))[0] 
@@ -321,7 +321,7 @@ def coreg_site(region, site, grid_res, start=0):
         print('%s n %d; %.2f percent; time elapsed: %s; %s'%(site, (n+start), (100*(n+start)/n_total), str(datetime.now() - time_start), name))
         
         #### run coregistration
-        im_failed, level = coreg_single(im_ref=ref_im_path, im_tgt=file, grid_res=grid_res, temp_dir=temp_dir)
+        im_failed, level = coreg_single(im_ref=ref_im_path, im_tgt=file, grid_res=grid_res)
         if im_failed is None:
             continue
         f= open(os.path.join(datapath, (f"failed_{site}.txt")),"a")
