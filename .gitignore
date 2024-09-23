@@ -4,8 +4,11 @@ sites/
 sites/PlanetScope_API_key.txt
 PlanetScope_API_key.txt
 *PlanetScope_API_key.txt
+
 user_inputs/*
-!user_inputs/hawaii/waikiki/
+!user_inputs/hawaii
+user_inputs/hawaii/*
+!user_inputs/hawaii/waikiki
 
 # below is for Python
 # Byte-compiled / optimized / DLL files
