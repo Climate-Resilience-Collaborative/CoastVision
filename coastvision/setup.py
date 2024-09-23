@@ -6,7 +6,7 @@ Author: Joel Nicolow, Climate Resiliance Collaborative, School of Ocean and Eart
 import os
 import json
 
-def create_site_dict_json_for_API(site_name:str, aoi:list, start_date:str, end_date:str):
+def create_site_dict_json_for_API(site_name:str, region:str, aoi:list, start_date:str, end_date:str):
     """
     This function creates sites/<sitename>_site_dict.json for the given site
     """
@@ -21,7 +21,7 @@ def create_site_dict_json_for_API(site_name:str, aoi:list, start_date:str, end_d
         "date_range_filter": {"type": "DateRangeFilter", "field_name": "acquired", 
                               "config": {"gte": f"{start_date}T00:00:00.000Z", "lte": f"{end_date}T00:00:00.000Z"}}, "cloud_cover_filter": {"type": "RangeFilter", "field_name": "cloud_cover", "config": {"lte": 0.3}}}}
 
-    with open(os.path.join('sites', f'{site_name}_site_dict.json'), "w") as f: 
+    with open(os.path.join('sites', f'{region}_site_dict.json'), "w") as f: 
         json.dump(site_dict, f, indent=4) # indent=4 makes the JSON pretty-printed
 
     return site_dict

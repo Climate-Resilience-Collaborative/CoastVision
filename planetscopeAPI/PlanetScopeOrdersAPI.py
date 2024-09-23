@@ -61,7 +61,7 @@ class PlanetScopeAPIOrder(object):
                         # self.REGION_DICTS.append(json.load(f))
                         data = json.load(f)
                         # self.SITE_DICTS.append(data)
-                        self.REGION_DICTS  = {**self.REGION_DICTS , list(data.keys())[0] : data}
+                        self.REGION_DICTS  = {**self.REGION_DICTS , str(os.path.basename(site_dict_fn)).replace('_site_dict.json', '') : data}
                 else:
                     site_files = os.listdir(os.path.join(self.ROOT_DIR, 'sites'))
                     site_dict_file_string = "_site_dictionaries_PS_API"
@@ -122,6 +122,7 @@ class PlanetScopeAPIOrder(object):
                     sites = sites.split(',')
                 self.REGION_DICTS[region] = supportingFunctions.only_keep_these_dict_elements(self.REGION_DICTS[region], sites)
             print(self.REGION_DICTS) # this is the slimmed down version of the region dicts
+        print(self.REGION_DICTS)
 
 
         if self.THREAD:
@@ -267,6 +268,7 @@ class PlanetScopeAPIOrder(object):
                 print(request_url)
                 if request_url is None: 
                     print('The products for this time were empty so skipping')
+                    print('if item_ids is not empty this is mostlikely and issue with the API key being used sites/PlanetScope_API_key.txt')
                     return None # this is just to skip the download portion
                 retry_count = 0
                 while retry_count < max_retries:
