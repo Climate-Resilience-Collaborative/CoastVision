@@ -1,10 +1,10 @@
-user_inputs/
 data/
 outputs/
 sites/
 sites/PlanetScope_API_key.txt
 PlanetScope_API_key.txt
 *PlanetScope_API_key.txt
+user_inputs/*
 !user_inputs/hawaii/waikiki/
 
 # below is for Python
