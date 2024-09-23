@@ -1,7 +1,7 @@
 """
-This script contains general purpose functions that can be used in varius applications
+This script contains general purpose functions that can be used in various applications
 
-Author: Joel Nicolow, Climate Resiliance Initiative, School of Ocean and Earth Science and Technology (July, 15 2022)
+Author: Joel Nicolow, Climate Resilience Collaborative, School of Ocean and Earth Science and Technology, University of Hawaiʻi (July, 15 2022)
 
 """
 
@@ -454,18 +454,7 @@ def convert_planet_raw_timestamp_to_dt(rawTs):
     return(dt.datetime.strptime(rawTs, '%Y%m%d_%H%M%S'))
 
 
-def clean_timestamp(rawTimestamp):
-    underscoreCount = rawTimestamp.count('_')
-    if underscoreCount == 2:
-        rawStr = '_'.join(rawTimestamp.split('_')[0:2])
-        rawStr = rawStr + '_00'
-        timestamp = dt.datetime.strptime(rawStr, "%Y%m%d_%H%M%S_%f")
-    else:
-        rawStr = '_'.join(rawTimestamp.split('_')[:-1])
-        timestamp = dt.datetime.strptime(rawStr, "%Y%m%d_%H%M%S_%f")
-    cleanTimestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')
-    
-    return cleanTimestamp
+
 
 
 

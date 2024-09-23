@@ -1,7 +1,8 @@
 """
-This script classifies pixels in images as sand, whitewater, or water. Then the shore line is extracted form this which can be used to get shoreline transect intersection. Some of the code used was addapted from CoastSat_ps.
+This script classifies pixels in images as land or water. Then the shoreline is extracted form this which can be used to get shoreline transect intersection. 
+Some of the code used was addapted from CoastSat.PlanetScope (Y. Doherty). https://github.com/ydoherty/CoastSat.PlanetScope
 
-Author: Joel Nicolow, Anna Mikkelsen Climate Resiliance Collaborative, School of Ocean and Earth Science and Technology (June, 25 2022)
+Author: Joel Nicolow, Anna Mikkelsen, Climate Resilience Collaborative, School of Ocean and Earth Science and Technology, University of Hawaiʻi (June, 25 2022)
 
 """
 
@@ -33,7 +34,6 @@ from shapely.geometry.polygon import Polygon
 from coastvision import supportingFunctions
 from coastvision import geospatialTools
 from coastvision.classifier import pixelclassifier
-max_dist=40
 
 #### image classification ####
 def image_std(image, radius):
@@ -483,7 +483,7 @@ def sort_item_ids_by_timeperiod(region, sitename, itemIds):
 
 
 # from shapely.geometry import LineString, MultiPolygon
-def create_shoreline_buffer(region, sitename, im_shape, georef, pixel_size, max_dist=max_dist, timeperiod=None):
+def create_shoreline_buffer(region, sitename, im_shape, georef, pixel_size, max_dist=50, timeperiod=None):
     """
     Creates a buffer around the reference shoreline. The size of the buffer is 
     
@@ -706,7 +706,7 @@ def remove_small_shorelines_and_smooth_contour(contour, sigma=0.1, smoothFilterW
     return(outputContour)
 
 
-def shoreline_contour_extract_single(im_classif, region, sitename, georef, shorelinebuff=None, min_sl_len=20, pixel_size=3, max_dist=max_dist, imMaskPath=None, saveContour=False, timestamp=None, smoothShorelineSigma=None, smoothWindow=None, year=None):
+def shoreline_contour_extract_single(im_classif, region, sitename, georef, shorelinebuff=None, min_sl_len=20, pixel_size=3, max_dist=50, imMaskPath=None, saveContour=False, timestamp=None, smoothShorelineSigma=None, smoothWindow=None, year=None):
     """
     This function takes the pixel classification matrix and and creates a contour of the shoreline
 
@@ -1124,7 +1124,7 @@ def is_sat_img_valid(region, sitename, tifPath, udmTifPath, maxDist=30, validPix
     im_ms = geospatialTools.get_im_ms(tifPath)
 
     pixelSize = supportingFunctions.get_pixel_size(os.path.dirname(tifPath), os.path.basename(tifPath))
-    slBuff = create_shoreline_buffer(region, sitename, im_shape=im_ms.shape[0:2], georef=georef, pixel_size=pixelSize, max_dist=max_dist, timeperiod=year)
+    slBuff = create_shoreline_buffer(region, sitename, im_shape=im_ms.shape[0:2], georef=georef, pixel_size=pixelSize, max_dist=50, timeperiod=year)
     udm_mask = geospatialTools.get_udm1_mask_from_udm2(udmTifPath) # USE UDM 1 not cloud band
 
     #print(f'udm mask shape: {udm_mask.shape}, sl buff shape: {slBuff.shape}')
@@ -1185,7 +1185,7 @@ def check_tif_name_valid(rawTimestamp):
 #### run all ####
 import json
 from coastvision import coastvisionPlots
-def run_coastvision_single(region, sitename, itemID, siteInputs=None, justShorelineExtract=False, smoothShoreline=0.1, smoothWindow=None, min_sl_len=30, intersect_func='cs', modelPklName='HI_logisticregression.pkl', dataProducts=False):
+def run_coastvision_single(region, sitename, itemID, siteInputs=None, justShorelineExtract=False, smoothShoreline=0.1, smoothWindow=None, min_sl_len=30, maxDistSlRef=100, intersect_func='cs', modelPklName='HI_logisticregression.pkl', dataProducts=False):
     """
 
     :param siteInputs: dictonary that contains transects and infojson for the site. This allows use to save time when running multiple items from the same site (defualt=None)
@@ -1218,11 +1218,8 @@ def run_coastvision_single(region, sitename, itemID, siteInputs=None, justShorel
         maxDistSlRef = infoJson['max_dist_from_sl_ref']
     else:
         beachType = None
-        #maxDistSlRef = 10
-        #maxDistSlRef = 25
-        maxDistSlRef = max_dist ###ABM
+        maxDistSlRef = maxDistSlRef
         infoJson = {'minBeachArea':500, 'minWaterSize':500}
-    # along_dist = 25
 
 
     if not metadataJson is None:
@@ -1269,41 +1266,19 @@ def run_coastvision_single(region, sitename, itemID, siteInputs=None, justShorel
             # plot contour and classif
             pixCoordContour = geospatialTools.convert_world2pix(contour, georef)
             coastvisionPlots.plot_classif_and_intersection(toaPath, im_classif, transects=siteInputs['transects'], sl=pixCoordContour, slBuff=shorelinebuff)
-            # supportingFunctions.create_dir(os.path.join(os.getcwd(), 'outputs', region, sitename, 'data_products', 'classification'))
-            # supportingFunctions.create_dir(os.path.join(os.getcwd(), 'outputs', region, sitename, 'data_products', 'contours'))
-            # savePath = os.path.join(os.getcwd(), 'outputs', region, sitename, 'data_products', 'classification', f"{sitename}_{timestamp}_rgb_classif_sl_plot.png")
-            # if shorelinebuff is None:
-            #     # NOTE this is slightly redondent but would only really happen if you are running one image at a time and at that point the time is negligable
-            #     shorelinebuff = create_shoreline_buffer(region, sitename, im_shape=im_classif.shape, georef=georef, pixel_size=int(infoJson['pixel_size']), max_dist=maxDistSlRef, timeperiod=int(itemID[0:4]))
-            # coastvisionPlots.rgb_classif_plot_single(toaPath, im_classif, sl=pixCoordContour, slBuff=shorelinebuff, savePath=savePath)
-            # supportingFunctions.create_dir(os.path.join(os.getcwd(), 'outputs', region, sitename, 'data_products', 'final'))
-            # savePath = os.path.join(os.getcwd(), 'outputs', region, sitename, 'data_products', 'final', f"{sitename}_{timestamp}_data_product.png")            
-            # coastvisionPlots.master_data_products_plot(toaPath, im_classif, sl=pixCoordContour, slBuff=shorelinebuff, savePath=savePath)
-            # savePath = os.path.join(os.getcwd(), 'outputs', region, sitename, 'data_products', 'contours', f"{sitename}_{timestamp}_rgb_sl_plot.png")
-            # coastvisionPlots.rgb_contour_plot_single(toaPath, pixCoordContour, savePath, loudShoreline=False)
 
         if not justShorelineExtract:
+            # if intesecting with transects, load them here 
             if siteInputs is None:
                 transectPath = os.path.join(os.getcwd(), 'user_inputs', region, sitename, (sitename + "_transects.geojson"))
                 transects = transects_from_geojson(transectPath)
             else:
                 transects = siteInputs['transects']
 
-            ########## ABM ADDED ###########
+            # intersect with transects
             if intersect_func == 'crc':
                 cross_dist, intersections = transect_intersect_single_crc(35, contour, region, sitename, timestamp) 
             else:
                 cross_dist = transect_intersect_single(35, contour, transects)
-            
-            if dataProducts:
-                supportingFunctions.create_dir(os.path.join(os.getcwd(), 'outputs', region, sitename, 'data_products', 'transects'))
-                #import geopandas as gpd
-                transectPath = os.path.join(os.getcwd(), 'user_inputs', region, sitename, (sitename + "_transects.geojson"))
-                transects_gpd = gpd.read_file(transectPath)
-                savePath = os.path.join(os.getcwd(), 'outputs', region, sitename, 'data_products', 'transects', f"{sitename}_{timestamp}_transect_int.png")
-                coastvisionPlots.rgb_plot_tif_transect_intersection(toaPath, transects_gpd, transects, region, sitename, cross_dist, savePath, intersections=None)
-                
-            return(cross_dist)
 
-            # return(transect_intersect_single(25, contour, transects))
-    # only need to return things if we are looking at transect intersection. Otherwise every output we need is saved somewhere duringthe run
+            return(cross_dist)

@@ -1,7 +1,7 @@
 """
 This script contains functions used to create data products for coastvision
 
-Author: Joel Nicolow, Climate Resiliance Initiative, School of Ocean and Earth Science and Technology (July, 20 2022)
+Author: Joel Nicolow, Climate Resilience Collaborative, School of Ocean and Earth Science and Technology, University of Hawaiʻi (July, 20 2022)
 
 """
 

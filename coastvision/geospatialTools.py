@@ -9,14 +9,11 @@ import os
 import rasterio
 import numpy as np
 from osgeo import gdal, osr
-### ABM: fix for import bug for Anna 
 import sklearn
 if sklearn.__version__[:4] == '0.20':
     from sklearn.externals import joblib
 else:
     import joblib
-# ORIGINAL:
-# from sklearn.externals import joblib 
 from coastvision import supportingFunctions
 import geojson
 

@@ -2,7 +2,7 @@
 This module houses pixel annotation tools allowing the user to classify pixels in tiff images into multiple categories
 This script includes components dirived from https://github.com/jnicolow/Python-pixel-annotation-tool
 
-Author: Joel Nicolow, Climate Resiliance Colaborative, School of Ocean and Earth Science and Technology (March, 28 2023)
+Author: Joel Nicolow, Climate Resilience Collaborative, School of Ocean and Earth Science and Technology, University of Hawaiʻi (March, 28 2023)
 """
 
 import os

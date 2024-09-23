@@ -1,8 +1,10 @@
 """
-This
+This script creates a class to run all CoastVision functions 
 
-Author: Joel Nicolow, Climate Resiliance Initiative, School of Ocean and Earth Science and Technology (September 2024)
+Author: Joel Nicolow, Climate Resilience Collaborative, School of Ocean and Earth Science and Technology, University of Hawaiʻi (September 2024) 
+
 """
+
 import os
 import pandas as pd
 import numpy as np
@@ -19,7 +21,7 @@ class CoastVisionRun(object):
     Each class instance represents running coastvision for one site
     """
 
-    def __init__(self, region, sitename, just_extract_shoreline = False, data_products = False, smooth_window = None, smooth_shoreline_sigma = 0.1, min_sl_len=30, max_dist_from_sl_ref = 50):
+    def __init__(self, region, sitename, just_extract_shoreline = False, data_products = False, smooth_window = None, smooth_shoreline_sigma = 0.1, min_sl_len=30, max_dist_from_sl_ref=100):
 
         self.region = region
         self.sitename = sitename
@@ -59,7 +61,6 @@ class CoastVisionRun(object):
                 # NOTE: waiting on pixel size for now
                 self.item_ids.add(itemId)
 
-
         self.intersection_dict = None # this will be filled out by run_shoreline_extraction()
 
 
@@ -91,10 +92,11 @@ class CoastVisionRun(object):
                 smoothShoreline = self.smooth_shoreline_sigma, 
                 smoothWindow = self.smooth_window, 
                 min_sl_len= self.min_sl_len, 
+                maxDistSlRef = self.max_dist_from_sl_ref,
                 dataProducts=self.data_products
             )
 
-        
+        print(self.intersection_dict)
         return self.create_intersection_df()
     
 
@@ -116,6 +118,25 @@ class CoastVisionRun(object):
     
 
     def tidal_correction_FES2014(self, fes2014_path, offshore_coord, reference_elevation=0, beach_slope=0.12):
+        """
+        Arguments
+        ------------
+        self: intersections df and all prior variables 
+        fes2014_path: str 
+            filepath to aviso FES2014 model data folder (e.g. "D:\\CoastVision\\aviso-fes-main\\data\\fes2014" )
+        offshore_coord: list
+            [lon,lat] coordinates of a offshore location to get tide elevation. for example [-155.50, 21.67]
+        reference_elevation: float
+            Reference elevation (Mean sea level=0) to correct intersection to. default 0 m
+        beach_slope: float or pandas df 
+            foreshore beach slope. defualt 0.12
+
+        Returns
+        --------------
+        corrected: pandas df
+            saves and returns a csv with tidally corrected shorelines intersections
+        """
+
         if not os.path.exists(fes2014_path):
             print('path to FES2014 is not set up correct')
             return
@@ -145,15 +166,22 @@ class CoastVisionRun(object):
 
     def tidal_correction_tidegauge(self, tidegauge, reference_elevation=0, beach_slope=0.12):
         """
-        Inputs
-            sitename: site to correct
-            region: region of site
-            reference_elevation: the reference elevation (Mean sea level=0) to correct intersection to. default 0m
-            beach_slope: choose a generic beach slope (**need to add ability to pass list of variable beach slopes**) defualt 0.15
-        outputs
-            saves a csv with corrected shorelines intersections
-            saves a csv with tide level at the time of each image
+        Arguments
+        ------------
+        self: intersections df and all prior variables 
+        tidegauge: pd dataframe 
+            A pandas dataframe with dates (datetime64) in index, and tide level on the column named ['sl']
+        reference_elevation: float
+            Reference elevation (Mean sea level=0) to correct intersection to. default 0 m
+        beach_slope: float or pandas df 
+            foreshore beach slope. defualt 0.12
+
+        Returns
+        --------------
+        corrected: pandas df
+            saves and returns a csv with tidally corrected shorelines intersections
         """
+
         tides = coastvisionTides.get_tides_from_tidegauge(self.intersection_df, tidegauge)
         tides = tides.dropna()
         ###### TIDAL CORRECTION ########
@@ -169,8 +197,19 @@ class CoastVisionRun(object):
         return corrected
 
 
-    def intersection_QAQC(self, remove_fraction = 0.15, window_days = 50, limit = 30):
+    def intersection_QAQC(self, limit = 30):
         """
+        Arguments
+        -----------
+        self: intersection or tidally corrected intersectiion and all prior variables
+        limit: float
+            cross-shore limit from median transect intersect. values outside will be made to NaN to remove outliers. 
+            default: 30m, i.e. all points +/- 30 m from transect median is removed
+        
+        Returns
+        -----------
+        qcDf: pandas df
+            Dataframe with outliers removed
 
         """
         qcDf = self.intersection_df.copy()    

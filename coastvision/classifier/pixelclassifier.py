@@ -1,7 +1,7 @@
 """
 This script contains function used in the pixel classification proccess from traning modeles to inference
 
-Author: Joel Nicolow, Climate Resiliance Collaborative, School of Ocean and Earth Science and Technology (April, 01 2022)
+Author: Joel Nicolow, Climate Resilience Collaborative, School of Ocean and Earth Science and Technology, University of Hawaiʻi (April, 01 2022)
 """
 
 
@@ -139,7 +139,6 @@ def calculate_features(im_ms, booleanMask=None, stdRadius=2):#, imglbp=None):
 
 
 from coastvision import geospatialTools
-# from coastvision import coastvision_oldmodel as coastvision
 from coastvision import coastvision
 
 from skimage.feature import local_binary_pattern

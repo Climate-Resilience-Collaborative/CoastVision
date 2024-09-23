@@ -2,7 +2,7 @@
 This is a tool that can be used to hand classify pixels in a satalite image (originally for 4band PlanetScope .tif files)
 CURRENTLY ADDAPTED FROM CoastSat_PS
 
-Author: Joel Nicolow, Climate Resilience Initiative, SOESTClimate Resiliance Initiative, School of Ocean and Earth Science and Technology (July, 22 2022)
+Author: Joel Nicolow, Climate Resilience Collaborative, School of Ocean and Earth Science and Technology, University of Hawaiʻi (July, 22 2022)
 """
 import os
 import pytz
