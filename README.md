@@ -34,7 +34,7 @@ conda env create -f coastvision.yml
 conda activate coastvision
 ```
 
-After successfully creating the environment run through `example_notebook.ipynb` using the `coastvision` environment. This notebook provides code and an explanation of the following steps. Given an area of interest and a timeframe of interest, you can download imagery and extract shorelines from your own site from all from this notebook.
+After successfully creating the environment run through `example_notebook.ipynb` using the `coastvision` environment. This notebook provides code and an explanation of the following steps. Given an area of interest and a timeframe of interest, you can download imagery and extract shorelines from your own site all from this notebook.
 
 ## 2. PlanetScope API<a name="api"></a>
 <a href='https://developers.planet.com/docs/data/planetscope/'>PlanetScope</a> is a satellite constellation operated by <a href='https://www.planet.com/'>Planet Labs Inc.</a> The PlanetScope constellation is made up of roughly 130 satellites, capable of imaging the entire land surface of earth with daily revisit times and 3 meter spatial resolution. The imagery has four bands red, green, blue, and near-infrared. 
@@ -49,7 +49,7 @@ Satellite images need to be accurately registered, meaning that they must align 
 
 ## 4. Shoreline Extraction<a name="sds"></a>
 ### 4.1 Image Segmentation<a name="seg"></a>
-A machine learning model is used to classify each pixel in the image as either land or water. The inputs to this model are the pixel values (for the four bands R,G,B,NIR) as well as band maths such as NDWI and local standard deviation.
+A machine learning model is used to classify each pixel in the image as either land or water. The inputs to this model are the pixel values (for the four bands R, G, B, NIR) as well as band maths such as NDWI and local standard deviation.
 
 <img src='media/image_segmentation.JPG' alt='Image Segmentation' width='300' height='auto'>
 
@@ -63,7 +63,7 @@ Coastal change is often measured through a series of shore normal transects. The
 
 <img src='media/transect_intersections.JPG' alt='Transect Intersections' width='300' height='auto'>
 
-In this case the intersections are saved in a dataframe of the following structure:
+In this case, the intersections are saved in a dataframe of the following structure:
 <table border="1">
    <tr>
       <th>Timestamp</th>
