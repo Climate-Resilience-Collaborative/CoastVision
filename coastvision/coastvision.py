@@ -393,6 +393,7 @@ def get_ref_sl_fn(region, sitename, yearMonth=None, timeperiod=None):
     
     :param timeperiod: if you are also going by month (seasonality) insert
     """
+    if not os.path.exists(os.path.join(os.getcwd(), 'user_inputs', region, sitename)): return None
     rangeMatchFound = False # used event if year=None
     defaultSlRef = None
     if not yearMonth is None or not timeperiod is None:
@@ -804,8 +805,9 @@ def shoreline_contour_extract_single(im_classif, region, sitename, georef, shore
         if os.path.exists(refSlPth):
             epsg = geospatialTools.get_epsg_from_geojson(refSlPth)
         else:
-            infoJson = supportingFunctions.get_info_from_info_json(os.path.join(os.getcwd(), 'user_inputs', region, sitename, (sitename + '_info.json')))
-            epsg = infoJson['epsg']
+            epsg = geospatialTools.get_epsg(glob.glob(os.path.join('data', region, sitename, '*_3B_AnalyticMS_toar_clip.tif'))[0]) # just get epsg from the one of the images in the data folder
+            # infoJson = supportingFunctions.get_info_from_info_json(os.path.join(os.getcwd(), 'user_inputs', region, sitename, (sitename + '_info.json')))
+            # epsg = infoJson['epsg']
 
         basepth = os.path.join('outputs', region, sitename, 'shoreline', 'contours')
         supportingFunctions.create_dir(basepth)
@@ -1256,11 +1258,13 @@ def run_coastvision_single(region, sitename, itemID, siteInputs=None, justShorel
                                                         saveContour=True, timestamp=timestamp,
                                                         smoothShorelineSigma=smoothShoreline, smoothWindow=smoothWindow,
                                                         year=int(itemID[0:4]))
+    if justShorelineExtract:
+        return contour
     # is conour valid
     if contour is None or contour.shape[0] == 0 or len(contour) == 0:
         # this means the image didnt include any of the reference shoreline (no contours extracted)
-        # print(f'skipping this image because it doesn\'t contain any of the sl ref: {toaPath}')
-        print('  contour outside reference')
+        print(f'\nskipping this image because it doesn\'t contain any of the sl ref: {os.path.basename(toaPath)}\n')
+        # print('  contour outside reference')
     else:
         if dataProducts:
             # plot contour and classif

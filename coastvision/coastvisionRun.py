@@ -37,8 +37,11 @@ class CoastVisionRun(object):
 
         ##### get site inputs #####
         self.site_inputs = {}
-        transectPath = os.path.join(os.getcwd(), 'user_inputs', self.region, self.sitename, (self.sitename + "_transects.geojson"))
-        self.transects = coastvision.transects_from_geojson(transectPath)
+        self.transects = None # some cases this wont be loaded
+        if just_extract_shoreline == False:
+            transectPath = os.path.join(os.getcwd(), 'user_inputs', self.region, self.sitename, (self.sitename + "_transects.geojson"))
+            if not os.path.exists(transectPath): print(f'No transects found for {self.sitename}, {self.region} please create transect GeoJSON. See How_to_create_transect_and_sl_ref_files.md for instructions')
+            self.transects = coastvision.transects_from_geojson(transectPath)
         self.site_inputs['transects'] = self.transects
         infoJson = supportingFunctions.get_info_from_info_json(os.path.join(os.getcwd(), 'user_inputs', self.region, self.sitename,(self.sitename + '_info.json')))
         self.site_inputs['infoJson'] = infoJson
@@ -96,11 +99,13 @@ class CoastVisionRun(object):
                 dataProducts=self.data_products
             )
 
-        print(self.intersection_dict)
+        if self.just_shoreline_extract: return self.intersection_dict # in this case it will actually be a dictionary of shoreline contours (not intersections)
         return self.create_intersection_df()
     
 
     def create_intersection_df(self):
+        if self.just_shoreline_extract == True:
+            print('intersection df cannot be created because ')
         if not self.intersection_dict is None:
             #create df
             self.intersection_df = pd.DataFrame(self.intersection_dict).T.astype(float)
