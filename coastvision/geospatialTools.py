@@ -79,8 +79,12 @@ def get_epsg(tiffFilePath):
     """
     """
     data = rasterio.open(tiffFilePath, 'r')
-    epsgStr = str(data.crs)
-    return epsgStr.split(':')[-1]
+    epsg_str = str(data.crs)
+    if '"EPSG"' in epsg_str:
+        first_split = epsg_str.split('"EPSG", "')[0]
+        epsg_str = first_split.split('"]]]')[0] # this should be the number
+        return(int(epsg_str))
+    return epsg_str.split(':')[-1] # otherwise its in this format
 
 
 
